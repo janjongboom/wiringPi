@@ -30,7 +30,11 @@ DYNAMIC=libwiringPi.so.$(VERSION)
 
 #DEBUG	= -g -O0
 DEBUG	= -O2
-CC	= gcc
+CC	?= gcc
+AR	?= ar
+RANLIB	?= ranlib
+EMMAKE	?= emmake
+EMCC	?= emcc
 INCLUDE	= -I.
 DEFS	= -D_GNU_SOURCE
 CFLAGS	= $(DEBUG) $(DEFS) -Wformat=2 -Wall -Winline $(INCLUDE) -pipe -fPIC
@@ -77,13 +81,17 @@ static:		$(STATIC)
 
 $(STATIC):	$(OBJ)
 	@echo "[Link (Static)]"
-	@ar rcs $(STATIC) $(OBJ)
-	@ranlib $(STATIC)
+	@$(AR) rcs $(STATIC) $(OBJ)
+	@$(RANLIB) $(STATIC)
 #	@size   $(STATIC)
 
 $(DYNAMIC):	$(OBJ)
 	@echo "[Link (Dynamic)]"
+ifeq ($(DISABLE_LPTHREAD),1)
+	@$(CC) -shared -Wl,-soname,libwiringPi.so -o libwiringPi.so.$(VERSION) $(OBJ)
+else
 	@$(CC) -shared -Wl,-soname,libwiringPi.so -o libwiringPi.so.$(VERSION) -lpthread $(OBJ)
+endif
 
 .c.o:
 	@echo [Compile] $<
@@ -142,6 +150,22 @@ uninstall:
 .PHONY:	depend
 depend:
 	makedepend -Y $(SRC) $(SRC_I2C)
+	
+.PHONY: emscripten
+emscripten:
+	@DISABLE_LPTHREAD=1 $(EMMAKE) make
+	@$(EMCC) libwiringPi.so.$(VERSION) -o libwiringPi.$(VERSION).js $(EMCC_ARGS) \
+		-s EXPORTED_FUNCTIONS="[\
+			'_wiringPiSetupSys',\
+			'_pinModeAlt',\
+			'_pinMode',\
+			'_pullUpDnControl',\
+			'_digitalRead',\
+			'_digitalWrite',\
+			'_pwmWrite',\
+			'_analogRead',\
+			'_analogWrite'\
+		]"
 
 # DO NOT DELETE
 

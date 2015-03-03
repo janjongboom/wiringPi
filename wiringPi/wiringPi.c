@@ -247,7 +247,7 @@ static pthread_mutex_t pinMutex ;
 
 // Debugging & Return codes
 
-int wiringPiDebug       = FALSE ;
+int wiringPiDebug       = TRUE ;
 int wiringPiReturnCodes = FALSE ;
 
 // sysFds:
@@ -660,10 +660,10 @@ int piBoardRev (void)
 
   if (boardRev != -1)	// No point checking twice
     return boardRev ;
-
+    
   if ((cpuFd = fopen ("/proc/cpuinfo", "r")) == NULL)
     piBoardRevOops ("Unable to open /proc/cpuinfo") ;
-
+    
 // Start by looking for the Architecture, then we can look for a B2 revision....
 
   while (fgets (line, 120, cpuFd) != NULL)
