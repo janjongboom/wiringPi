@@ -150,13 +150,12 @@ uninstall:
 .PHONY:	depend
 depend:
 	makedepend -Y $(SRC) $(SRC_I2C)
-	
-.PHONY: emscripten
-emscripten:
-	@DISABLE_LPTHREAD=1 $(EMMAKE) make
+
+.PHONY: emcc
+emcc:
 	@$(EMCC) libwiringPi.so.$(VERSION) -o libwiringPi.$(VERSION).js $(EMCC_ARGS) \
 		-s EXPORTED_FUNCTIONS="[\
-			'_wiringPiSetupSys',\
+			'_wiringPiSetup',\
 			'_pinModeAlt',\
 			'_pinMode',\
 			'_pullUpDnControl',\
@@ -166,6 +165,12 @@ emscripten:
 			'_analogRead',\
 			'_analogWrite'\
 		]"
+
+.PHONY: emscripten
+emscripten:
+	@DISABLE_LPTHREAD=1 $(EMMAKE) make
+	@$(MAKE) emcc
+
 
 # DO NOT DELETE
 

@@ -1193,6 +1193,8 @@ void pinMode (int pin, int mode)
   int    fSel, shift, alt ;
   struct wiringPiNodeStruct *node = wiringPiNodes ;
   int origPin = pin ;
+  
+  printf("wiringPiMode %d\n", wiringPiMode);
 
   if ((pin & PI_GPIO_MASK) == 0)		// On-board pin
   {
