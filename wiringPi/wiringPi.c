@@ -1850,9 +1850,14 @@ int wiringPiSetup (void)
   }
 
 // Open the master /dev/memory device
+#ifdef EMSCRIPTEN
+  char* devmem = "/emdev/mem";
+#else
+  char* devmem = "/dev/mem";
+#endif
 
-  if ((fd = open ("/dev/mem", O_RDWR | O_SYNC | O_CLOEXEC) ) < 0)
-    return wiringPiFailure (WPI_ALMOST, "wiringPiSetup: Unable to open /dev/mem: %s\n", strerror (errno)) ;
+  if ((fd = open (devmem, O_RDWR | O_SYNC | O_CLOEXEC) ) < 0)
+    return wiringPiFailure (WPI_ALMOST, "wiringPiSetup: Unable to open %s: %s\n", devmem, strerror (errno)) ;
 
 // GPIO:
 
